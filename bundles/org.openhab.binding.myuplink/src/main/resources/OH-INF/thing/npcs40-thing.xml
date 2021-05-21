@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="myuplink"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+	<thing-type id="npcs40">
+		<label>Alpha Innotec NP-CS40</label>
+		<description>Alpha Innotec NP-CS40 heat pump connected through myUpwayk</description>
+		<channel-groups>
+			<channel-group typeId="base-base" id="base"/>
+			<channel-group typeId="base-hotwater" id="hotwater"/>
+			<channel-group typeId="npcs40-general" id="general"/>
+			<channel-group typeId="npcs40-compressor" id="compressor"/>
+			<channel-group typeId="custom-custom" id="custom"/>
+		</channel-groups>
+		<config-description-ref uri="thing-type:myuplink:web"/>
+	</thing-type>
+</thing:thing-descriptions>

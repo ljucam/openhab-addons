@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="myuplink"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+	<channel-group-type id="npcs40-general">
+		<label>General Channels</label>
+		<channels>
+			<channel id="44302" typeId="npcs40-type-44302"/>
+			<channel id="47011" typeId="npcs40-type-47011"/>
+			<!-- new ones following -->
+			<channel id="47276" typeId="npcs40-type-47276"/>
+			<channel id="40152" typeId="npcs40-type-40152"/>
+			<channel id="47214" typeId="npcs40-type-47214"/>
+			<channel id="47613" typeId="npcs40-type-47613"/>
+			<channel id="43091" typeId="npcs40-type-43091"/>
+			<channel id="40771" typeId="npcs40-type-40771"/>
+		</channels>
+	</channel-group-type>
+	<channel-group-type id="npcs40-compressor">
+		<label>Compressor Channels</label>
+		<channels>
+			<channel id="44362" typeId="npcs40-type-44362"/>
+			<channel id="44396" typeId="npcs40-type-44396"/>
+			<channel id="44703" typeId="npcs40-type-44703"/>
+			<channel id="44073" typeId="npcs40-type-44073"/>
+			<channel id="40737" typeId="npcs40-type-40737"/>
+			<channel id="44071" typeId="npcs40-type-44071"/>
+			<channel id="44069" typeId="npcs40-type-44069"/>
+			<channel id="44061" typeId="npcs40-type-44061"/>
+			<channel id="44060" typeId="npcs40-type-44060"/>
+			<channel id="44059" typeId="npcs40-type-44059"/>
+			<channel id="44058" typeId="npcs40-type-44058"/>
+			<channel id="44055" typeId="npcs40-type-44055"/>
+			<channel id="44363" typeId="npcs40-type-44363"/>
+			<channel id="44699" typeId="npcs40-type-44699"/>
+			<channel id="40782" typeId="npcs40-type-40782"/>
+			<channel id="44701" typeId="npcs40-type-44701"/>
+			<channel id="44700" typeId="npcs40-type-44700"/>
+			<channel id="44457" typeId="npcs40-type-44457"/>
+			<!-- new ones following -->
+			<channel id="10014" typeId="npcs40-type-10014"/>
+			<channel id="44866" typeId="npcs40-type-44866"/>
+			<channel id="41164" typeId="npcs40-type-41164"/>
+			<channel id="41163" typeId="npcs40-type-41163"/>
+			<channel id="41162" typeId="npcs40-type-41162"/>
+			<channel id="41167" typeId="npcs40-type-41167"/>
+			<channel id="41002" typeId="npcs40-type-41002"/>
+		</channels>
+	</channel-group-type>
+</thing:thing-descriptions>
