@@ -323,7 +323,7 @@ public class AtlonaPro3Handler extends AtlonaHandler<AtlonaPro3Capabilities> {
                             break;
                         case AtlonaPro3Constants.CHANNEL_VOLUME:
                             if (command instanceof DecimalType) {
-                                final double level = ((DecimalType) command).doubleValue();
+                                final int level = ((DecimalType) command).intValue();
                                 atlonaHandler.setVolume(portNbr, level);
                             } else {
                                 logger.debug("Received a VOLUME channel command with a non DecimalType: {}", command);
@@ -449,7 +449,7 @@ public class AtlonaPro3Handler extends AtlonaHandler<AtlonaPro3Capabilities> {
             return;
         }
 
-        session = new SocketChannelSession(config.getIpAddress(), 23);
+        session = new SocketChannelSession(getThing().getUID().getAsString(), config.getIpAddress(), 23);
         atlonaHandler = new AtlonaPro3PortocolHandler(session, config, getCapabilities(),
                 new StatefulHandlerCallback(new AtlonaHandlerCallback() {
                     @Override
@@ -489,7 +489,12 @@ public class AtlonaPro3Handler extends AtlonaHandler<AtlonaPro3Capabilities> {
             session.clearListeners();
             session.connect();
 
-            response = atlonaHandler.login();
+            if (this.getCapabilities().isUHDModel()) {
+                response = atlonaHandler.loginUHD();
+            } else {
+                response = atlonaHandler.loginHD();
+            }
+
             if (response == null) {
                 final AtlonaPro3Config config = getAtlonaConfig();
                 if (config != null) {

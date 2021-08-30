@@ -55,9 +55,10 @@ public abstract class AbstractStateMachine<T extends AbstractStateMachine<T, U>,
 
         state = newState;
 
-        state.startWorking();
+        newState.startWorking();
     }
 
+    @SuppressWarnings("PMD.CompareObjectsWithEquals")
     protected boolean isStateActive(AbstractState<?, ?> otherState) {
         return state == otherState; // compare by identity
     }

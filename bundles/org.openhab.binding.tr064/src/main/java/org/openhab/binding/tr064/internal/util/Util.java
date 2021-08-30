@@ -17,7 +17,9 @@ import static org.openhab.binding.tr064.internal.Tr064BindingConstants.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,7 @@ import org.openhab.binding.tr064.internal.dto.scpd.service.SCPDArgumentType;
 import org.openhab.binding.tr064.internal.dto.scpd.service.SCPDDirection;
 import org.openhab.binding.tr064.internal.dto.scpd.service.SCPDScpdType;
 import org.openhab.binding.tr064.internal.dto.scpd.service.SCPDStateVariableType;
+import org.openhab.core.cache.ExpiringCacheMap;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.binding.builder.ChannelBuilder;
@@ -79,6 +82,10 @@ import org.w3c.dom.NodeList;
 @NonNullByDefault
 public class Util {
     private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
+    private static final int HTTP_REQUEST_TIMEOUT = 5; // in s
+    // cache XML content for 5s
+    private static final ExpiringCacheMap<String, Object> XML_OBJECT_CACHE = new ExpiringCacheMap<>(
+            Duration.ofMillis(3000));
 
     /**
      * read the channel config from the resource file (static initialization)
@@ -172,6 +179,13 @@ public class Util {
                 .forEach(channelTypeDescription -> {
                     String channelId = channelTypeDescription.getName();
                     String serviceId = channelTypeDescription.getService().getServiceId();
+                    String typeId = channelTypeDescription.getTypeId();
+                    Map<String, String> channelProperties = new HashMap<String, String>();
+
+                    if (typeId != null) {
+                        channelProperties.put("typeId", typeId);
+                    }
+
                     Set<String> parameters = new HashSet<>();
                     try {
                         SCPDServiceType deviceService = scpdUtil.getDevice(deviceId)
@@ -226,22 +240,25 @@ public class Util {
                             ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
                             ChannelBuilder channelBuilder = ChannelBuilder
                                     .create(channelUID, channelTypeDescription.getItem().getType())
-                                    .withType(channelTypeUID);
+                                    .withType(channelTypeUID).withProperties(channelProperties);
                             thingBuilder.withChannel(channelBuilder.build());
                             channels.put(channelUID, channelConfig);
                         } else {
                             // create a channel for each parameter
                             parameters.forEach(parameter -> {
-                                String normalizedParameter = UIDUtils.encode(parameter);
+                                // remove comment: split parameter at '#', discard everything after that and remove
+                                // trailing spaces
+                                String rawParameter = parameter.split("#")[0].trim();
+                                String normalizedParameter = UIDUtils.encode(rawParameter);
                                 ChannelUID channelUID = new ChannelUID(thing.getUID(),
                                         channelId + "_" + normalizedParameter);
                                 ChannelBuilder channelBuilder = ChannelBuilder
                                         .create(channelUID, channelTypeDescription.getItem().getType())
-                                        .withType(channelTypeUID)
+                                        .withType(channelTypeUID).withProperties(channelProperties)
                                         .withLabel(channelTypeDescription.getLabel() + " " + parameter);
                                 thingBuilder.withChannel(channelBuilder.build());
                                 Tr064ChannelConfig channelConfig1 = new Tr064ChannelConfig(channelConfig);
-                                channelConfig1.setParameter(parameter);
+                                channelConfig1.setParameter(rawParameter);
                                 channels.put(channelUID, channelConfig1);
                             });
                         }
@@ -274,7 +291,15 @@ public class Util {
             // validate parameter against pattern
             String parameterPattern = parameter.getPattern();
             if (parameterPattern != null) {
-                parameters.removeIf(param -> !param.matches(parameterPattern));
+                parameters.removeIf(param -> {
+                    if (!param.matches(parameterPattern)) {
+                        LOGGER.warn("Removing {} while processing {}, does not match pattern {}, check config.", param,
+                                channelId, parameterPattern);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
             }
 
             // validate parameter against SCPD (if not internal only)
@@ -321,28 +346,41 @@ public class Util {
      * @param clazz the class describing the XML file
      * @return unmarshalling result
      */
+    @SuppressWarnings("unchecked")
     public static <T> @Nullable T getAndUnmarshalXML(HttpClient httpClient, String uri, Class<T> clazz) {
         try {
-            ContentResponse contentResponse = httpClient.newRequest(uri).timeout(2, TimeUnit.SECONDS)
-                    .method(HttpMethod.GET).send();
-            byte[] response = contentResponse.getContent();
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("XML = {}", new String(response));
-            }
-            InputStream xml = new ByteArrayInputStream(response);
+            T returnValue = (T) XML_OBJECT_CACHE.putIfAbsentAndGet(uri, () -> {
+                try {
+                    LOGGER.trace("Refreshing cache for '{}'", uri);
+                    ContentResponse contentResponse = httpClient.newRequest(uri)
+                            .timeout(HTTP_REQUEST_TIMEOUT, TimeUnit.SECONDS).method(HttpMethod.GET).send();
+                    byte[] response = contentResponse.getContent();
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("XML = {}", new String(response));
+                    }
+                    InputStream xml = new ByteArrayInputStream(response);
 
-            JAXBContext context = JAXBContext.newInstance(clazz);
-            XMLInputFactory xif = XMLInputFactory.newFactory();
-            xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-            xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-            XMLStreamReader xsr = xif.createXMLStreamReader(new StreamSource(xml));
-            Unmarshaller um = context.createUnmarshaller();
-            T newValue = um.unmarshal(xsr, clazz).getValue();
-            return newValue;
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            LOGGER.debug("HTTP Failed to GET uri '{}': {}", uri, e.getMessage());
-        } catch (JAXBException | XMLStreamException e) {
-            LOGGER.debug("Unmarshalling failed: {}", e.getMessage());
+                    JAXBContext context = JAXBContext.newInstance(clazz);
+                    XMLInputFactory xif = XMLInputFactory.newFactory();
+                    xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+                    xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                    XMLStreamReader xsr = xif.createXMLStreamReader(new StreamSource(xml));
+                    Unmarshaller um = context.createUnmarshaller();
+                    T newValue = um.unmarshal(xsr, clazz).getValue();
+                    LOGGER.trace("Storing in cache {}", newValue);
+                    return newValue;
+                } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                    LOGGER.debug("HTTP Failed to GET uri '{}': {}", uri, e.getMessage());
+                    throw new IllegalArgumentException();
+                } catch (JAXBException | XMLStreamException e) {
+                    LOGGER.debug("Unmarshalling failed: {}", e.getMessage());
+                    throw new IllegalArgumentException();
+                }
+            });
+            LOGGER.trace("Returning from cache: {}", returnValue);
+            return returnValue;
+        } catch (IllegalArgumentException e) {
+            // already logged
         }
         return null;
     }

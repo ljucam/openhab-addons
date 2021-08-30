@@ -76,7 +76,7 @@ public class ShellyChannelCache {
                 current = channelData.get(channelId);
             }
             if (!enabled || forceUpdate || (current == null) || !current.equals(newValue)) {
-                if ((current != null) && current.getClass().isEnum() && (current == newValue)) {
+                if ((current != null) && current.getClass().isEnum() && (current.equals(newValue))) {
                     return false; // special case for OnOffType
                 }
                 // For channels that support multiple types (like brightness) a suffix is added
@@ -93,7 +93,7 @@ public class ShellyChannelCache {
             }
         } catch (IllegalArgumentException e) {
             logger.debug("{}: Unable to update channel {} with {} (type {}): {} ({})", thingName, channelId, newValue,
-                    newValue.getClass(), ShellyUtils.getMessage(e), e.getClass());
+                    newValue.getClass(), ShellyUtils.getMessage(e), e.getClass(), e);
         }
         return false;
     }
@@ -119,7 +119,8 @@ public class ShellyChannelCache {
     }
 
     public State getValue(String channelId) {
-        return channelData.getOrDefault(channelId, UnDefType.NULL);
+        State st = channelData.get(channelId);
+        return st != null ? st : UnDefType.NULL;
     }
 
     public void resetChannel(String channelId) {

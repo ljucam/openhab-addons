@@ -32,9 +32,7 @@ public class PowermaxAckMessage extends PowermaxBaseMessage {
     }
 
     @Override
-    public PowermaxState handleMessage(PowermaxCommManager commManager) {
-        super.handleMessage(commManager);
-
+    protected PowermaxState handleMessageInternal(PowermaxCommManager commManager) {
         if (commManager == null) {
             return null;
         }
@@ -43,8 +41,8 @@ public class PowermaxAckMessage extends PowermaxBaseMessage {
 
         if (commManager.getLastSendMsg().getSendType() == PowermaxSendType.EXIT) {
             updatedState = commManager.createNewState();
-            updatedState.setPowerlinkMode(true);
-            updatedState.setDownloadMode(false);
+            updatedState.powerlinkMode.setValue(true);
+            updatedState.downloadMode.setValue(false);
         }
 
         return updatedState;

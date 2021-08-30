@@ -14,7 +14,7 @@ package org.openhab.binding.tr064.internal;
 
 import static org.openhab.binding.tr064.internal.Tr064BindingConstants.THING_TYPE_FRITZBOX;
 
-import java.util.*;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,7 +65,7 @@ public class Tr064HandlerFactory extends BaseThingHandlerFactory {
         this.channelTypeProvider = channelTypeProvider;
         this.phonebookProfileFactory = phonebookProfileFactory;
         // use an insecure client (i.e. without verifying the certificate)
-        this.httpClient = new HttpClient(new SslContextFactory(true));
+        this.httpClient = new HttpClient(new SslContextFactory.Client(true));
         try {
             this.httpClient.start();
         } catch (Exception e) {
