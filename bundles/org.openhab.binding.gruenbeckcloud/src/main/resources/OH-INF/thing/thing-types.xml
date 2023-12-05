@@ -1,0 +1,1399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="gruenbeckcloud"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<bridge-type id="bridge">
+
+		<label>Grünbeck Cloud Bridge</label>
+		<description>Bridge representing the Grünbeck Cloud Account</description>
+
+		<properties>
+			<property name="vendor">Grünbeck</property>
+		</properties>
+
+		<representation-property>email</representation-property>
+
+		<config-description>
+			<parameter name="password" type="text">
+				<required>true</required>
+				<label>Password</label>
+				<description>This is the Password required to log in to Grünbeck Cloud.</description>
+			</parameter>
+			<parameter name="refreshPeriod" type="integer" min="1" max="60">
+				<required>true</required>
+				<default>10</default>
+				<label>Connect Refresh Period (seconds)</label>
+				<description>
+					This is the Frequency of the Polling Requests to the Grünbeck Cloud API. There are Limits
+					to the Number
+					of Requests that can be sent to the API. The more often you poll, the better
+					Status Updates, at the Risk of running
+					out of your Request Quota.
+				</description>
+			</parameter>
+			<parameter name="email" type="text">
+				<required>true</required>
+				<label>Email Address</label>
+				<description>This is the Account Email required to log in to Grünbeck Cloud</description>
+			</parameter>
+		</config-description>
+	</bridge-type>
+
+	<thing-type id="softener">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge"/>
+		</supported-bridge-type-refs>
+
+		<label>Grünbeck Water Softener</label>
+		<description>Provides Communication with Grünbeck Water Softener.</description>
+
+		<channels>
+			<!-- device information -->
+			<channel id="pallowemail" typeId="pallowemail"/>
+			<channel id="pallowpushnotification" typeId="pallowpushnotification"/>
+			<channel id="pdlstauto" typeId="pdlstauto"/>
+			<channel id="pntpsync" typeId="pntpsync"/>
+			<channel id="pcfcontact" typeId="pcfcontact"/>
+			<channel id="pknx" typeId="pknx"/>
+			<channel id="pmonflow" typeId="pmonflow"/>
+			<channel id="pmondisinf" typeId="pmondisinf"/>
+			<channel id="pledatsaltpre" typeId="pledatsaltpre"/>
+			<channel id="pbuzzer" typeId="pbuzzer"/>
+			<channel id="prescaplimit" typeId="prescaplimit"/>
+			<channel id="pcurrent" typeId="pcurrent"/>
+			<channel id="pload" typeId="pload"/>
+			<channel id="pforcedregdist" typeId="pforcedregdist"/>
+			<channel id="pmaintint" typeId="pmaintint"/>
+			<channel id="pfreqregvalve" typeId="pfreqregvalve"/>
+			<channel id="pfreqblendvalve" typeId="pfreqblendvalve"/>
+			<channel id="pledbright" typeId="pledbright"/>
+			<channel id="pvolume" typeId="pvolume"/>
+			<channel id="prawhard" typeId="prawhard"/>
+			<channel id="psetsoft" typeId="psetsoft"/>
+			<channel id="ppratesoftwater" typeId="ppratesoftwater"/>
+			<channel id="pprateblending" typeId="pprateblending"/>
+			<channel id="pprateregwater" typeId="pprateregwater"/>
+			<channel id="psetcapmo" typeId="psetcapmo"/>
+			<channel id="psetcaptu" typeId="psetcaptu"/>
+			<channel id="psetcapwe" typeId="psetcapwe"/>
+			<channel id="psetcapth" typeId="psetcapth"/>
+			<channel id="psetcapfr" typeId="psetcapfr"/>
+			<channel id="psetcapsa" typeId="psetcapsa"/>
+			<channel id="psetcapsu" typeId="psetcapsu"/>
+			<channel id="pnomflow" typeId="pnomflow"/>
+			<channel id="ppressurereg" typeId="ppressurereg"/>
+			<channel id="pmonregmeter" typeId="pmonregmeter"/>
+			<channel id="pmonsalting" typeId="pmonsalting"/>
+			<channel id="prinsing" typeId="prinsing"/>
+			<channel id="pbackwash" typeId="pbackwash"/>
+			<channel id="pwashingout" typeId="pwashingout"/>
+			<channel id="pminvolmincap" typeId="pminvolmincap"/>
+			<channel id="pmaxvolmincap" typeId="pmaxvolmincap"/>
+			<channel id="pminvolmaxcap" typeId="pminvolmaxcap"/>
+			<channel id="pmaxvolmaxcap" typeId="pmaxvolmaxcap"/>
+			<channel id="pmaxdurdisinfect" typeId="pmaxdurdisinfect"/>
+			<channel id="pmaxresdurreg" typeId="pmaxresdurreg"/>
+			<channel id="pbuzzfrom" typeId="pbuzzfrom"/>
+			<channel id="pbuzzto" typeId="pbuzzto"/>
+			<channel id="pmailadress" typeId="pmailadress"/>
+			<channel id="pname" typeId="pname"/>
+			<channel id="ptelnr" typeId="ptelnr"/>
+			<channel id="pmode" typeId="pmode"/>
+			<channel id="pmodemo" typeId="pmodemo"/>
+			<channel id="pmodetu" typeId="pmodetu"/>
+			<channel id="pmodewe" typeId="pmodewe"/>
+			<channel id="pmodeth" typeId="pmodeth"/>
+			<channel id="pmodefr" typeId="pmodefr"/>
+			<channel id="pmodesa" typeId="pmodesa"/>
+			<channel id="pmodesu" typeId="pmodesu"/>
+			<channel id="planguage" typeId="planguage"/>
+			<channel id="phunit" typeId="phunit"/>
+			<channel id="pregmode" typeId="pregmode"/>
+			<channel id="pprogout" typeId="pprogout"/>
+			<channel id="pprogin" typeId="pprogin"/>
+			<channel id="ppowerfail" typeId="ppowerfail"/>
+			<channel id="pmodedesinf" typeId="pmodedesinf"/>
+			<channel id="pled" typeId="pled"/>
+			<channel id="pregmo1" typeId="pregmo1"/>
+			<channel id="pregmo2" typeId="pregmo2"/>
+			<channel id="pregmo3" typeId="pregmo3"/>
+			<channel id="pregtu1" typeId="pregtu1"/>
+			<channel id="pregtu2" typeId="pregtu2"/>
+			<channel id="pregtu3" typeId="pregtu3"/>
+			<channel id="pregwe1" typeId="pregwe1"/>
+			<channel id="pregwe2" typeId="pregwe2"/>
+			<channel id="pregwe3" typeId="pregwe3"/>
+			<channel id="pregth1" typeId="pregth1"/>
+			<channel id="pregth2" typeId="pregth2"/>
+			<channel id="pregth3" typeId="pregth3"/>
+			<channel id="pregfr1" typeId="pregfr1"/>
+			<channel id="pregfr2" typeId="pregfr2"/>
+			<channel id="pregfr3" typeId="pregfr3"/>
+			<channel id="pregsa1" typeId="pregsa1"/>
+			<channel id="pregsa2" typeId="pregsa2"/>
+			<channel id="pregsa3" typeId="pregsa3"/>
+			<channel id="pregsu1" typeId="pregsu1"/>
+			<channel id="pregsu2" typeId="pregsu2"/>
+			<channel id="pregsu3" typeId="pregsu3"/>
+			<channel id="pmonblend" typeId="pmonblend"/>
+			<channel id="poverload" typeId="poverload"/>
+			<channel id="pfreqregvalve2" typeId="pfreqregvalve2"/>
+			<!-- end device information -->
+
+			<!-- device statistics -->
+			<channel id="hardwareVersion" typeId="hardwareVersion"/>
+			<channel id="lastService" typeId="lastService"/>
+			<channel id="mode" typeId="mode"/>
+			<channel id="nextRegeneration" typeId="nextRegeneration"/>
+			<channel id="nominalFlow" typeId="nominalFlow"/>
+			<channel id="rawWater" typeId="rawWater"/>
+			<channel id="softWater" typeId="softWater"/>
+			<channel id="softwareVersion" typeId="softwareVersion"/>
+			<channel id="timeZone" typeId="timeZone"/>
+			<channel id="unit" typeId="unit"/>
+			<channel id="startup" typeId="startup"/>
+			<channel id="type" typeId="type"/>
+			<channel id="hasError" typeId="hasError"/>
+			<channel id="register" typeId="register"/>
+
+			<channel id="last_error_message" typeId="last_error_message"/>
+			<channel id="last_error_resolved" typeId="last_error_resolved"/>
+			<channel id="last_error_date" typeId="last_error_date"/>
+			<channel id="last_error_type" typeId="last_error_type"/>
+
+			<channel id="usage_date_salt_1" typeId="usage_date"/>
+			<channel id="usage_value_salt_1" typeId="usage_value"/>
+			<channel id="usage_date_salt_2" typeId="usage_date"/>
+			<channel id="usage_value_salt_2" typeId="usage_value"/>
+			<channel id="usage_date_salt_3" typeId="usage_date"/>
+			<channel id="usage_value_salt_3" typeId="usage_value"/>
+
+			<channel id="usage_date_water_1" typeId="usage_date"/>
+			<channel id="usage_value_water_1" typeId="usage_value"/>
+			<channel id="usage_date_water_2" typeId="usage_date"/>
+			<channel id="usage_value_water_2" typeId="usage_value"/>
+			<channel id="usage_date_water_3" typeId="usage_date"/>
+			<channel id="usage_value_water_3" typeId="usage_value"/>
+			<!-- end device statistics -->
+
+			<!-- device current -->
+			<channel id="ibuiltindev" typeId="ibuiltindev"/>
+			<channel id="isncu" typeId="isncu"/>
+			<channel id="mregpercent1" typeId="mregpercent1"/>
+			<channel id="mregpercent2" typeId="mregpercent2"/>
+			<channel id="mremregstep" typeId="mremregstep"/>
+			<channel id="mregstatus" typeId="mregstatus"/>
+			<channel id="mresidcap1" typeId="mresidcap1"/>
+			<channel id="mresidcap2" typeId="mresidcap2"/>
+			<channel id="mrescapa1" typeId="mrescapa1"/>
+			<channel id="mrescapa2" typeId="mrescapa2"/>
+			<channel id="mmaint" typeId="mmaint"/>
+			<channel id="mflow1" typeId="mflow1"/>
+			<channel id="mflow2" typeId="mflow2"/>
+			<channel id="mflowreg1" typeId="mflowreg1"/>
+			<channel id="mflowreg2" typeId="mflowreg2"/>
+			<channel id="mflowblend" typeId="mflowblend"/>
+			<channel id="mstep1" typeId="mstep1"/>
+			<channel id="mstep2" typeId="mstep2"/>
+			<channel id="mcurrent" typeId="mcurrent"/>
+			<channel id="mreswatadmod" typeId="mreswatadmod"/>
+			<channel id="msaltrange" typeId="msaltrange"/>
+			<!-- end device current -->
+
+			<!-- device currSlow -->
+			<channel id="mcountreg" typeId="mcountreg"/>
+			<channel id="mcountwater1" typeId="mcountwater1"/>
+			<channel id="mcountwater2" typeId="mcountwater2"/>
+			<channel id="mcountwatertank" typeId="mcountwatertank"/>
+			<channel id="msaltusage" typeId="msaltusage"/>
+			<channel id="mflowexc" typeId="mflowexc"/>
+			<channel id="mflowexc2reg1" typeId="mflowexc2reg1"/>
+			<channel id="mflowexc1reg2" typeId="mflowexc1reg2"/>
+			<channel id="mlifeadsorb" typeId="mlifeadsorb"/>
+			<channel id="mhardsoftw" typeId="mhardsoftw"/>
+			<channel id="mcapacity" typeId="mcapacity"/>
+			<channel id="maverage" typeId="maverage"/>
+			<channel id="mstddev" typeId="mstddev"/>
+			<channel id="mmax" typeId="mmax"/>
+			<channel id="mpress" typeId="mpress"/>
+			<channel id="mtemp" typeId="mtemp"/>
+			<channel id="mflowmax" typeId="mflowmax"/>
+			<channel id="mflowmax1reg2" typeId="mflowmax1reg2"/>
+			<channel id="mflowmax2reg1" typeId="mflowmax2reg1"/>
+			<channel id="mendreg1" typeId="mendreg1"/>
+			<channel id="mendreg2" typeId="mendreg2"/>
+			<!-- end device currSlow -->
+
+			<!-- binding relevant -->
+			<channel id="requestRegeneration" typeId="requestRegeneration"/>
+			<channel id="regenerationStatus" typeId="regenerationStatus"/>
+			<channel id="regenerationProgressIdRaw" typeId="regenerationProgressIdRaw"/>
+			<channel id="regenerationProgressDescription" typeId="regenerationProgressDescription"/>
+			<channel id="regenerationRemainingInCurrentStep" typeId="regenerationRemainingInCurrentStep"/>
+			<channel id="saltLevel" typeId="saltLevel"/>
+			<channel id="lastAccountedSaltUsageDate" typeId="lastAccountedSaltUsageDate"/>
+			<channel id="resetSaltLevel" typeId="resetSaltLevel"/>
+			<channel id="regenerationActive" typeId="regenerationActive"/>
+			<!-- end binding relevant -->
+		</channels>
+
+		<representation-property>serialNumber</representation-property>
+
+		<config-description>
+			<parameter name="serialNumber" type="text" required="true">
+				<label>Serial Number</label>
+				<description>Serial Number of the Softener</description>
+			</parameter>
+
+			<parameter name="id" type="text" required="true">
+				<label>ID</label>
+				<description>ID of the Softener (often includes the Serial Number as well)</description>
+			</parameter>
+
+			<parameter name="series" type="text" required="true">
+				<label>Series</label>
+				<description>Series of the Softener</description>
+			</parameter>
+
+			<parameter name="name" type="text" required="true">
+				<label>Name</label>
+				<description>Device Name of the Softener</description>
+			</parameter>
+
+			<parameter name="saltCapacity" type="integer" required="true">
+				<label>Salt Capacity</label>
+				<description>The Salt Capacity of the Softener in Gram</description>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<!--
+		A good channel description can be found here:
+		https://github.com/TA2k/ioBroker.gruenbeck/blob/master/descriptions.js
+	-->
+
+	<!-- device information -->
+	<channel-type id="pallowemail">
+		<item-type>Switch</item-type>
+		<label>Email Notification</label>
+		<description>Are Email Notification allowed?</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pallowpushnotification">
+		<item-type>Switch</item-type>
+		<label>Push Notification</label>
+		<description>Are Push Notification allowed?</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pdlstauto">
+		<item-type>Switch</item-type>
+		<label>Switch-over DST to ST</label>
+		<description>Switch-over DST to ST</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pntpsync">
+		<item-type>Switch</item-type>
+		<label>Ntp Sync</label>
+		<description>Get Date/Time automatically (NTP)</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pcfcontact">
+		<item-type>Switch</item-type>
+		<label>Function Fault Signal Contact</label>
+		<description>Function Fault Signal Contact</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pknx">
+		<item-type>Switch</item-type>
+		<label>KNX</label>
+		<description>KNX Connection</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pmonflow">
+		<item-type>Switch</item-type>
+		<label>Monitoring of Nominal Flow</label>
+		<description>Monitoring of Nominal Flow</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pmondisinf">
+		<item-type>Switch</item-type>
+		<label>Disinfection Monitoring</label>
+		<description>Disinfection Monitoring</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pledatsaltpre">
+		<item-type>Switch</item-type>
+		<label>Pre-alarm Salt Supply LED</label>
+		<description>Illuminated LED Ring flashes for Pre-Alarm Salt Supply</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pbuzzer">
+		<item-type>Switch</item-type>
+		<label>Audio Signal</label>
+		<description>Audio Signal</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="prescaplimit">
+		<item-type>Number</item-type>
+		<label>Residual Capacity Limit Value</label>
+		<description>Residual Capacity Limit Value [%]</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pcurrent">
+		<item-type>Number</item-type>
+		<label>Setpoint Current</label>
+		<description>Setpoint Current [mA]</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pload">
+		<item-type>Number</item-type>
+		<label>Charge</label>
+		<description>Charge [mAMin]</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pforcedregdist">
+		<item-type>Number</item-type>
+		<label>Interval of Forced Regeneration</label>
+		<description>Interval of Forced Regeneration [d]</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmaintint">
+		<item-type>Number</item-type>
+		<label>Maintenance Interval</label>
+		<description>Maintenance Interval [d]</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pfreqregvalve">
+		<item-type>Number</item-type>
+		<label>End Frequency Regeneration Valve</label>
+		<description>End Frequency Regeneration Valve [Hz]</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pfreqblendvalve">
+		<item-type>Number</item-type>
+		<label>[Hz] End frequency blending valve</label>
+		<description>[Hz] End frequency blending valve</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pledbright">
+		<item-type>Dimmer</item-type>
+		<label>[%] Brightness</label>
+		<description>[%] Brightness</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pvolume">
+		<item-type>Number</item-type>
+		<label>[m³] Absorber treatment volume</label>
+		<description>[m³] Absorber treatment volume</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="prawhard">
+		<item-type>Number</item-type>
+		<label>[°dH] Raw water hardness</label>
+		<description>[°dH] Raw water hardness</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetsoft">
+		<item-type>Number</item-type>
+		<label>[°dH] Setpoint of soft water hardness</label>
+		<description>[°dH] Setpoint of soft water hardness</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="ppratesoftwater">
+		<item-type>Number</item-type>
+		<label>[l/Imp] Soft water meter pulse rate</label>
+		<description>[l/Imp] Soft water meter pulse rate</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pprateblending">
+		<item-type>Number</item-type>
+		<label>[l/Imp] Blending water meter pulse rate</label>
+		<description>[l/Imp] Blending water meter pulse rate</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pprateregwater">
+		<item-type>Number</item-type>
+		<label>[l/Imp] Regeneration water meter pulse rate</label>
+		<description>[l/Imp] Regeneration water meter pulse rate</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcapmo">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Monday</label>
+		<description>[m³x°dH] Capacity figure Monday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcaptu">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Tuesday</label>
+		<description>[m³x°dH] Capacity figure Tuesday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcapwe">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Wednesday</label>
+		<description>[m³x°dH] Capacity figure Wednesday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcapth">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Thursday</label>
+		<description>[m³x°dH] Capacity figure Thursday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcapfr">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Friday</label>
+		<description>[m³x°dH] Capacity figure Friday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcapsa">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Saturday</label>
+		<description>[m³x°dH] Capacity figure Saturday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="psetcapsu">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure Sunday</label>
+		<description>[m³x°dH] Capacity figure Sunday</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pnomflow">
+		<item-type>Number</item-type>
+		<label>[m³/h] Nominal flow rate</label>
+		<description>[m³/h] Nominal flow rate</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<!-- unknown value -->
+	<channel-type id="ppressurereg">
+		<item-type>Number</item-type>
+		<label>ppressurereg</label>
+		<description>ppressurereg</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pmonregmeter">
+		<item-type>Number</item-type>
+		<label>[Min] Regeneration monitoring time</label>
+		<description>[Min] Regeneration monitoring time</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pmonsalting">
+		<item-type>Number</item-type>
+		<label>[Min] Salting monitoring time</label>
+		<description>[Min] Salting monitoring time</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="prinsing">
+		<item-type>Number</item-type>
+		<label>[Min] Slow rinse</label>
+		<description>[Min] Slow rinse</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pbackwash">
+		<item-type>Number</item-type>
+		<label>[l] Backwash</label>
+		<description>[l] Backwash</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pwashingout">
+		<item-type>Number</item-type>
+		<label>[l] Washing out</label>
+		<description>[l] Washing out</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pminvolmincap">
+		<item-type>Number</item-type>
+		<label>[l] Min. filling volume smallest cap</label>
+		<description>[l] Min. filling volume smallest cap</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pmaxvolmincap">
+		<item-type>Number</item-type>
+		<label>[l] Max. filling volume smallest cap</label>
+		<description>[l] Max. filling volume smallest cap</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pminvolmaxcap">
+		<item-type>Number</item-type>
+		<label>[l] Min. filling volume largest cap</label>
+		<description>[l] Min. filling volume largest cap</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pmaxvolmaxcap">
+		<item-type>Number</item-type>
+		<label>[l] Max. filling volume largest cap</label>
+		<description>[l] Max. filling volume largest cap</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pmaxdurdisinfect">
+		<item-type>Number</item-type>
+		<label>[Min] Longest switch-on time Cl cell</label>
+		<description>[Min] Longest switch-on time Cl cell</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pmaxresdurreg">
+		<item-type>Number</item-type>
+		<label>[Min] Max Remaining time regeneration</label>
+		<description>[Min] Max Remaining time regeneration</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="pbuzzfrom">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Audio signal release from</label>
+		<description>[hh:mm] Audio signal release from</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pbuzzto">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Audio signal release until</label>
+		<description>[hh:mm] Audio signal release until</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pmailadress">
+		<item-type>Text</item-type>
+		<label>Maintenance company email</label>
+		<description>Maintenance company email</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pname">
+		<item-type>Text</item-type>
+		<label>Maintenance company</label>
+		<description>Maintenance company</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="ptelnr">
+		<item-type>Text</item-type>
+		<label>Maintenance company phone number</label>
+		<description>Maintenance company phone number</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="pmode">
+		<item-type>Number</item-type>
+		<label>Operation mode</label>
+		<description>Operation mode</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodemo">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Monday</label>
+		<description>Indiv. Operating mode Monday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodetu">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Tuesday</label>
+		<description>Indiv. Operating mode Tuesday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodewe">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Wednesday</label>
+		<description>Indiv. Operating mode Wednesday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodeth">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Thursday</label>
+		<description>Indiv. Operating mode Thursday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodefr">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Friday</label>
+		<description>Indiv. Operating mode Friday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodesa">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Saturday</label>
+		<description>Indiv. Operating mode Saturday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodesu">
+		<item-type>Number</item-type>
+		<label>Indiv. Operating mode Sunday</label>
+		<description>Indiv. Operating mode Sunday</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="planguage">
+		<item-type>Number</item-type>
+		<label>Current language</label>
+		<description>Current language</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="phunit">
+		<item-type>Number</item-type>
+		<label>Hardness unit</label>
+		<description>Hardness unit</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pregmode">
+		<item-type>Number</item-type>
+		<label>Time of regeneration</label>
+		<description>Time of regeneration</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pprogout">
+		<item-type>Number</item-type>
+		<label>Programmable output function</label>
+		<description>Programmable output function</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pprogin">
+		<item-type>Number</item-type>
+		<label>Programmable input function</label>
+		<description>Programmable input function</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="ppowerfail">
+		<item-type>Number</item-type>
+		<label>Reaction to power failure > 5 min</label>
+		<description>Reaction to power failure > 5 min</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pmodedesinf">
+		<item-type>Number</item-type>
+		<label>Activate/deactivate chlorine cell</label>
+		<description>Activate/deactivate chlorine cell</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pled">
+		<item-type>Number</item-type>
+		<label>Illuminated LED ring</label>
+		<description>Illuminated LED ring</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pregmo1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Monday 1</label>
+		<description>[hh:mm] Define time of regeneration on Monday 1</description>
+	</channel-type>
+
+	<channel-type id="pregmo2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Monday 2</label>
+		<description>[hh:mm] Define time of regeneration on Monday 2</description>
+	</channel-type>
+
+	<channel-type id="pregmo3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Monday 3</label>
+		<description>[hh:mm] Define time of regeneration on Monday 3</description>
+	</channel-type>
+
+	<channel-type id="pregtu1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Tuesday 1</label>
+		<description>[hh:mm] Define time of regeneration on Tuesday 1</description>
+	</channel-type>
+
+	<channel-type id="pregtu2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Tuesday 2</label>
+		<description>[hh:mm] Define time of regeneration on Tuesday 2</description>
+	</channel-type>
+
+	<channel-type id="pregtu3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Tuesday 3</label>
+		<description>[hh:mm] Define time of regeneration on Tuesday 3</description>
+	</channel-type>
+
+	<channel-type id="pregwe1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Wednesday 1</label>
+		<description>[hh:mm] Define time of regeneration on Wednesday 1</description>
+	</channel-type>
+
+	<channel-type id="pregwe2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Wednesday 2</label>
+		<description>[hh:mm] Define time of regeneration on Wednesday 2</description>
+	</channel-type>
+
+	<channel-type id="pregwe3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Wednesday 3</label>
+		<description>[hh:mm] Define time of regeneration on Wednesday 3</description>
+	</channel-type>
+
+	<channel-type id="pregth1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Thursday 1</label>
+		<description>[hh:mm] Define time of regeneration on Thursday 1</description>
+	</channel-type>
+
+	<channel-type id="pregth2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Thursday 2</label>
+		<description>[hh:mm] Define time of regeneration on Thursday 2</description>
+	</channel-type>
+
+	<channel-type id="pregth3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Thursday 3</label>
+		<description>[hh:mm] Define time of regeneration on Thursday 3</description>
+	</channel-type>
+
+	<channel-type id="pregfr1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Friday 1</label>
+		<description>[hh:mm] Define time of regeneration on Friday 1</description>
+	</channel-type>
+
+	<channel-type id="pregfr2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Friday 2</label>
+		<description>[hh:mm] Define time of regeneration on Friday 2</description>
+	</channel-type>
+
+	<channel-type id="pregfr3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Friday 3</label>
+		<description>[hh:mm] Define time of regeneration on Friday 3</description>
+	</channel-type>
+
+	<channel-type id="pregsa1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Saturday 1</label>
+		<description>[hh:mm] Define time of regeneration on Saturday 1</description>
+	</channel-type>
+
+	<channel-type id="pregsa2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Saturday 2</label>
+		<description>[hh:mm] Define time of regeneration on Saturday 2</description>
+	</channel-type>
+
+	<channel-type id="pregsa3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Saturday 3</label>
+		<description>[hh:mm] Define time of regeneration on Saturday 3</description>
+	</channel-type>
+
+	<channel-type id="pregsu1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Sunday 1</label>
+		<description>[hh:mm] Define time of regeneration on Sunday 1</description>
+	</channel-type>
+
+	<channel-type id="pregsu2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Sunday 2</label>
+		<description>[hh:mm] Define time of regeneration on Sunday 2</description>
+	</channel-type>
+
+	<channel-type id="pregsu3">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Define time of regeneration on Sunday 3</label>
+		<description>[hh:mm] Define time of regeneration on Sunday 3</description>
+	</channel-type>
+
+	<channel-type id="pmonblend">
+		<item-type>Number</item-type>
+		<label>Blending monitoring</label>
+		<description>Blending monitoring</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="poverload">
+		<item-type>Number</item-type>
+		<label>System overloaded</label>
+		<description>System overloaded</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="pfreqregvalve2">
+		<item-type>Number</item-type>
+		<label>[Hz] End frequency regeneration valve 2</label>
+		<description>[Hz] End frequency regeneration valve 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+	<!-- end of device information -->
+
+
+	<!-- ######################################### -->
+
+
+	<!-- device statistics -->
+	<channel-type id="hardwareVersion">
+		<item-type>Text</item-type>
+		<label>Hardware version</label>
+		<description>Hardware version</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="lastService">
+		<item-type>DateTime</item-type>
+		<label>[yyyy.mm.dd] Last maintenance</label>
+		<description>[yyyy.mm.dd] Last maintenance</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="mode">
+		<item-type>Number</item-type>
+		<label>Operation mode</label>
+		<description>Operation mode</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="nextRegeneration">
+		<item-type>DateTime</item-type>
+		<label>Next regeneration</label>
+		<description>Next regeneration</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="nominalFlow">
+		<item-type>Number</item-type>
+		<label>Nominal flow</label>
+		<description>Nominal flow</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="rawWater">
+		<item-type>Number</item-type>
+		<label>[°dH] Raw water hardness</label>
+		<description>[°dH] Raw water hardness</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="softWater">
+		<item-type>Number</item-type>
+		<label>[°dH] Soft water hardness</label>
+		<description>[°dH] Soft water hardness</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="softwareVersion">
+		<item-type>Text</item-type>
+		<label>Software version</label>
+		<description>Software version</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="timeZone">
+		<item-type>Text</item-type>
+		<label>Timezone</label>
+		<description>Timezone</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="unit">
+		<item-type>Number</item-type>
+		<label>Hardness unit</label>
+		<description>Hardness unit</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="startup">
+		<item-type>DateTime</item-type>
+		<label>Startup date</label>
+		<description>Startup date</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="type">
+		<item-type>Number</item-type>
+		<label>Softener model type</label>
+		<description>Softener model type</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="hasError">
+		<item-type>Switch</item-type>
+		<label>Error</label>
+		<description>Error</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="register">
+		<item-type>Switch</item-type>
+		<label>Registered</label>
+		<description>Registered</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="last_error_message">
+		<item-type>Text</item-type>
+		<label>Last error message</label>
+		<description>Last error message</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="last_error_resolved">
+		<item-type>Switch</item-type>
+		<label>Last error resolved</label>
+		<description>Last error resolved</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="last_error_date">
+		<item-type>DateTime</item-type>
+		<label>Last error date</label>
+		<description>Last error date</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="last_error_type">
+		<item-type>Text</item-type>
+		<label>Last error type</label>
+		<description>Last error type</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="usage_value">
+		<item-type>Number</item-type>
+		<label>Usage value</label>
+		<description>Usage value</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="usage_date">
+		<item-type>DateTime</item-type>
+		<label>Usage date</label>
+		<description>Usage date</description>
+		<state readOnly="true"/>
+	</channel-type>
+	<!-- end of device statistics -->
+
+	<!-- ######################################### -->
+
+	<!-- device - current -->
+
+	<channel-type id="ibuiltindev">
+		<item-type>Switch</item-type>
+		<label>ibuiltindev</label>
+		<description>ibuiltindev</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="isncu">
+		<item-type>Text</item-type>
+		<label>isncu</label>
+		<description>isncu</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="mregpercent1">
+		<item-type>Number</item-type>
+		<label>[%] till regeneration 1</label>
+		<description>[%] till regeneration 1</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mregpercent2">
+		<item-type>Number</item-type>
+		<label>[%] till regeneration 2</label>
+		<description>[%] till regeneration 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mremregstep">
+		<item-type>Number</item-type>
+		<label>Remaining amount / time of current regeneration step</label>
+		<description>Remaining amount / time of current regeneration step</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mregstatus">
+		<item-type>Number</item-type>
+		<label>Regeneration step</label>
+		<description>Regeneration step</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="mresidcap1">
+		<item-type>Number</item-type>
+		<label>[%] Residual capacity 1</label>
+		<description>[%] Residual capacity 1</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mresidcap2">
+		<item-type>Number</item-type>
+		<label>[%] Residual capacity 2</label>
+		<description>[%] Residual capacity 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mrescapa1">
+		<item-type>Number</item-type>
+		<label>[m³] Soft water Exchanger 1</label>
+		<description>[m³] Soft water Exchanger 1</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mrescapa2">
+		<item-type>Number</item-type>
+		<label>[m³] Soft water Exchanger 2</label>
+		<description>[m³] Soft water Exchanger 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mmaint">
+		<item-type>Number</item-type>
+		<label>[d] Perform maintenance in</label>
+		<description>[d] Perform maintenance in</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="mflow1">
+		<item-type>Number</item-type>
+		<label>[m³/h] Flow rate exch. 1</label>
+		<description>[m³/h] Flow rate exch. 1</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflow2">
+		<item-type>Number</item-type>
+		<label>[m³/h] Flow rate exch. 2</label>
+		<description>[m³/h] Flow rate exch. 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowreg1">
+		<item-type>Number</item-type>
+		<label>[l/h] Regeneration flow rate Exchanger 1</label>
+		<description>[l/h] Regeneration flow rate Exchanger 1</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowreg2">
+		<item-type>Number</item-type>
+		<label>[l/h] Regeneration flow rate Exchanger 2</label>
+		<description>[l/h] Regeneration flow rate Exchanger 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowblend">
+		<item-type>Number</item-type>
+		<label>[m³/h] Blending flow rate</label>
+		<description>[m³/h] Blending flow rate</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mstep1">
+		<item-type>Number</item-type>
+		<label>Step indication regeneration valve 1</label>
+		<description>Step indication regeneration valve 1</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="mstep2">
+		<item-type>Number</item-type>
+		<label>Step indication regeneration valve 2</label>
+		<description>Step indication regeneration valve 2</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="mcurrent">
+		<item-type>Number</item-type>
+		<label>[mA] Chlorine current</label>
+		<description>[mA] Chlorine current</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mreswatadmod">
+		<item-type>Number</item-type>
+		<label>[m³] Absorber remaining amount of water</label>
+		<description>[m³] Absorber remaining amount of water</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="msaltrange">
+		<item-type>Number</item-type>
+		<label>[d] Salt-reach</label>
+		<description>[d] Salt-reach</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+	<!-- end device - current -->
+
+	<!-- ######################################### -->
+
+	<!-- end device - currSlow -->
+	<channel-type id="mcountreg">
+		<item-type>Number</item-type>
+		<label>Regeneration counter</label>
+		<description>Regeneration counter</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="mcountwater1">
+		<item-type>Number</item-type>
+		<label>[l] Soft water exchanger 1</label>
+		<description>[l] Soft water exchanger 1</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mcountwater2">
+		<item-type>Number</item-type>
+		<label>[l] Soft water exchanger 2</label>
+		<description>[l] Soft water exchanger 2</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mcountwatertank">
+		<item-type>Number</item-type>
+		<label>[l] Make-up water volume</label>
+		<description>[l] Make-up water volume</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="msaltusage">
+		<item-type>Number</item-type>
+		<label>[kg] salt consumption</label>
+		<description>[kg] salt consumption</description>
+		<state readOnly="true" pattern="%.4f"/>
+	</channel-type>
+
+	<channel-type id="mflowexc">
+		<item-type>Number</item-type>
+		<label>[Min] during</label>
+		<description>[Min] during</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowexc2reg1">
+		<item-type>Number</item-type>
+		<label>[Min]</label>
+		<description>[Min]</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowexc1reg2">
+		<item-type>Number</item-type>
+		<label>[Min]</label>
+		<description>[Min]</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mlifeadsorb">
+		<item-type>Number</item-type>
+		<label>[%] Absorber exhausted by</label>
+		<description>[%] Absorber exhausted by</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mhardsoftw">
+		<item-type>Number</item-type>
+		<label>[°dh] Actual value soft water hardness</label>
+		<description>[°dh] Actual value soft water hardness</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mcapacity">
+		<item-type>Number</item-type>
+		<label>[m³x°dH] Capacity figure</label>
+		<description>[m³x°dH] Capacity figure</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<!-- unknown value -->
+	<channel-type id="maverage">
+		<item-type>Number</item-type>
+		<label>maverage</label>
+		<description>maverage</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<!-- unknown value -->
+	<channel-type id="mstddev">
+		<item-type>Number</item-type>
+		<label>mstddev</label>
+		<description>mstddev</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<!-- unknown value -->
+	<channel-type id="mmax">
+		<item-type>Number</item-type>
+		<label>mmax</label>
+		<description>mmax</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<!-- unknown value -->
+	<channel-type id="mpress">
+		<item-type>Number</item-type>
+		<label>mpress</label>
+		<description>mpress</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<!-- unknown value -->
+	<channel-type id="mtemp">
+		<item-type>Number</item-type>
+		<label>mtemp</label>
+		<description>mtemp</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowmax">
+		<item-type>Number</item-type>
+		<label>[m³/h] Flow rate peak value</label>
+		<description>[m³/h] Flow rate peak value</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowmax1reg2">
+		<item-type>Number</item-type>
+		<label>[m³/h] Exchanger 1 peak value</label>
+		<description>[m³/h] Exchanger 1 peak value</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mflowmax2reg1">
+		<item-type>Number</item-type>
+		<label>[m³/h] Exchanger 2 peak value</label>
+		<description>[m³/h] Exchanger 2 peak value</description>
+		<state readOnly="true" pattern="%.2f"/>
+	</channel-type>
+
+	<channel-type id="mendreg1">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Last regeneration Exchanger 1</label>
+		<description>[hh:mm] Last regeneration Exchanger 1</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="mendreg2">
+		<item-type>Text</item-type>
+		<label>[hh:mm] Last regeneration Exchanger 2</label>
+		<description>[hh:mm] Last regeneration Exchanger 2</description>
+		<state readOnly="true"/>
+	</channel-type>
+	<!-- end device - currSlow -->
+
+	<!-- binding relevant types -->
+	<channel-type id="requestRegeneration">
+		<item-type>Switch</item-type>
+		<label>Request Regeneration</label>
+		<description>Request Regeneration</description>
+	</channel-type>
+
+	<channel-type id="regenerationStatus">
+		<item-type>Number</item-type>
+		<label>Regeneration progress</label>
+		<description>Regeneration progress</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="regenerationProgressIdRaw">
+		<item-type>Number</item-type>
+		<label>Regeneration progress id (raw)</label>
+		<description>Regeneration progress id (raw)</description>
+		<state readOnly="true" pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="regenerationProgressDescription">
+		<item-type>Text</item-type>
+		<label>Regeneration progress description</label>
+		<description>Regeneration progress description</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="regenerationRemainingInCurrentStep">
+		<item-type>Text</item-type>
+		<label>Regeneration remaining in the current regeneration step</label>
+		<description>Regeneration remaining in the current regeneration step</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="saltLevel">
+		<item-type>Number</item-type>
+		<label>Salt level</label>
+		<description>Salt level in gram</description>
+		<state pattern="%d"/>
+	</channel-type>
+
+	<channel-type id="lastAccountedSaltUsageDate">
+		<item-type>DateTime</item-type>
+		<label>Last accounted Salt usage date</label>
+		<description>Last accounted Salt usage date</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<channel-type id="resetSaltLevel">
+		<item-type>Switch</item-type>
+		<label>Reset salt level</label>
+		<description>Reset salt level</description>
+	</channel-type>
+
+	<channel-type id="regenerationActive">
+		<item-type>Switch</item-type>
+		<label>Regeneration active</label>
+		<description>Regeneration active</description>
+		<state readOnly="true"/>
+	</channel-type>
+
+	<!-- end binding relevant types -->
+</thing:thing-descriptions>
