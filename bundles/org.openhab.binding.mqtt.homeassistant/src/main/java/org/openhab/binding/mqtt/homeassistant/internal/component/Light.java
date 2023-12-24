@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,36 +12,63 @@
  */
 package org.openhab.binding.mqtt.homeassistant.internal.component;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.mqtt.generic.ChannelStateUpdateListener;
 import org.openhab.binding.mqtt.generic.mapping.ColorMode;
 import org.openhab.binding.mqtt.generic.values.ColorValue;
+import org.openhab.binding.mqtt.generic.values.NumberValue;
+import org.openhab.binding.mqtt.generic.values.OnOffValue;
+import org.openhab.binding.mqtt.generic.values.PercentageValue;
+import org.openhab.binding.mqtt.generic.values.TextValue;
 import org.openhab.binding.mqtt.homeassistant.internal.ComponentChannel;
 import org.openhab.binding.mqtt.homeassistant.internal.config.dto.AbstractChannelConfiguration;
-import org.openhab.core.io.transport.mqtt.MqttBrokerConnection;
+import org.openhab.binding.mqtt.homeassistant.internal.exception.UnsupportedComponentException;
+import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.types.Command;
-import org.openhab.core.types.State;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
- * A MQTT light, following the https://www.home-assistant.io/components/light.mqtt/ specification.
+ * A MQTT light, following the
+ * https://www.home-assistant.io/components/light.mqtt/ specification.
  *
- * This class condenses the three state/command topics (for ON/OFF, Brightness, Color) to one
- * color channel.
+ * Individual concrete classes implement the differing semantics of the
+ * three different schemas.
+ *
+ * As of now, only on/off, brightness, and RGB are fully implemented and tested.
+ * HS and XY are implemented, but not tested. Color temp is only
+ * implemented (but not tested) for the default schema.
  *
  * @author David Graeff - Initial contribution
+ * @author Cody Cutrer - Re-write for (nearly) full support
  */
 @NonNullByDefault
-public class Light extends AbstractComponent<Light.ChannelConfiguration> implements ChannelStateUpdateListener {
-    public static final String switchChannelID = "light"; // Randomly chosen channel "ID"
-    public static final String brightnessChannelID = "brightness"; // Randomly chosen channel "ID"
-    public static final String colorChannelID = "color"; // Randomly chosen channel "ID"
+public abstract class Light extends AbstractComponent<Light.ChannelConfiguration>
+        implements ChannelStateUpdateListener {
+    protected static final String DEFAULT_SCHEMA = "default";
+    protected static final String JSON_SCHEMA = "json";
+    protected static final String TEMPLATE_SCHEMA = "template";
+
+    protected static final String STATE_CHANNEL_ID = "state";
+    protected static final String ON_OFF_CHANNEL_ID = "on_off";
+    protected static final String BRIGHTNESS_CHANNEL_ID = "brightness";
+    protected static final String COLOR_MODE_CHANNEL_ID = "color_mode";
+    protected static final String COLOR_TEMP_CHANNEL_ID = "color_temp";
+    protected static final String EFFECT_CHANNEL_ID = "effect";
+    // This channel is a synthetic channel that may send to other channels
+    // underneath
+    protected static final String COLOR_CHANNEL_ID = "color";
+
+    protected static final String DUMMY_TOPIC = "dummy";
+
+    protected static final String ON_COMMAND_TYPE_FIRST = "first";
+    protected static final String ON_COMMAND_TYPE_BRIGHTNESS = "brightness";
+    protected static final String ON_COMMAND_TYPE_LAST = "last";
 
     /**
      * Configuration class for MQTT component
@@ -51,128 +78,230 @@ public class Light extends AbstractComponent<Light.ChannelConfiguration> impleme
             super("MQTT Light");
         }
 
-        protected int brightness_scale = 255;
-        protected boolean optimistic = false;
-        protected @Nullable List<String> effect_list;
+        /* Attributes that control the basic structure of the light */
 
-        // Defines when on the payload_on is sent. Using last (the default) will send any style (brightness, color, etc)
-        // topics first and then a payload_on to the command_topic. Using first will send the payload_on and then any
-        // style topics. Using brightness will only send brightness commands instead of the payload_on to turn the light
+        protected String schema = DEFAULT_SCHEMA;
+        protected @Nullable Boolean optimistic; // All schemas
+        protected boolean brightness = false; // JSON schema only
+        @SerializedName("color_mode")
+        protected boolean colorMode = false; // JSON schema only
+        @SerializedName("supported_color_modes")
+        protected @Nullable List<LightColorMode> supportedColorModes; // JSON schema only
+        // Defines when on the payload_on is sent. Using last (the default) will send
+        // any style (brightness, color, etc)
+        // topics first and then a payload_on to the command_topic. Using first will
+        // send the payload_on and then any
+        // style topics. Using brightness will only send brightness commands instead of
+        // the payload_on to turn the light
         // on.
-        protected String on_command_type = "last";
+        @SerializedName("on_command_type")
+        protected String onCommandType = ON_COMMAND_TYPE_LAST; // Default schema only
 
-        protected @Nullable String state_topic;
-        protected @Nullable String command_topic;
-        protected @Nullable String state_value_template;
+        /* Basic control attributes */
 
-        protected @Nullable String brightness_state_topic;
-        protected @Nullable String brightness_command_topic;
-        protected @Nullable String brightness_value_template;
+        @SerializedName("state_topic")
+        protected @Nullable String stateTopic; // All Schemas
+        @SerializedName("state_value_template")
+        protected @Nullable String stateValueTemplate; // Default schema only
+        @SerializedName("state_template")
+        protected @Nullable String stateTemplate; // Template schema only
+        @SerializedName("payload_on")
+        protected String payloadOn = "ON"; // Default schema only
+        @SerializedName("payload_off")
+        protected String payloadOff = "OFF"; // Default schema only
+        @SerializedName("command_topic")
+        protected @Nullable String commandTopic; // All schemas
+        @SerializedName("command_on_template")
+        protected @Nullable String commandOnTemplate; // Template schema only; required
+        @SerializedName("command_off_template")
+        protected @Nullable String commandOffTemplate; // Template schema only; required
 
-        protected @Nullable String color_temp_state_topic;
-        protected @Nullable String color_temp_command_topic;
-        protected @Nullable String color_temp_value_template;
+        /* Brightness attributes */
 
-        protected @Nullable String effect_command_topic;
-        protected @Nullable String effect_state_topic;
-        protected @Nullable String effect_value_template;
+        @SerializedName("brightness_scale")
+        protected int brightnessScale = 255; // Default, JSON schemas only
+        @SerializedName("brightness_state_topic")
+        protected @Nullable String brightnessStateTopic; // Default schema only
+        @SerializedName("brightness_value_template")
+        protected @Nullable String brightnessValueTemplate; // Default schema only
+        @SerializedName("brightness_template")
+        protected @Nullable String brightnessTemplate; // Template schema only
+        @SerializedName("brightness_command_topic")
+        protected @Nullable String brightnessCommandTopic; // Default schema only
+        @SerializedName("brightness_command_template")
+        protected @Nullable String brightnessCommandTemplate; // Default schema only
 
-        protected @Nullable String rgb_command_topic;
-        protected @Nullable String rgb_state_topic;
-        protected @Nullable String rgb_value_template;
-        protected @Nullable String rgb_command_template;
+        /* White value attributes */
 
-        protected @Nullable String white_value_command_topic;
-        protected @Nullable String white_value_state_topic;
-        protected @Nullable String white_value_template;
+        @SerializedName("white_scale")
+        protected int whiteScale = 255; // Default, JSON schemas only
+        @SerializedName("white_command_topic")
+        protected @Nullable String whiteCommandTopic; // Default schema only
 
-        protected @Nullable String xy_command_topic;
-        protected @Nullable String xy_state_topic;
-        protected @Nullable String xy_value_template;
+        /* Color mode attributes */
 
-        protected String payload_on = "ON";
-        protected String payload_off = "OFF";
+        @SerializedName("color_mode_state_topic")
+        protected @Nullable String colorModeStateTopic; // Default schema only
+        @SerializedName("color_mode_value_template")
+        protected @Nullable String colorModeValueTemplate; // Default schema only
+
+        /* Color temp attributes */
+
+        @SerializedName("min_mireds")
+        protected @Nullable Integer minMireds; // All schemas
+        @SerializedName("max_mireds")
+        protected @Nullable Integer maxMireds; // All schemas
+        @SerializedName("color_temp_state_topic")
+        protected @Nullable String colorTempStateTopic; // Default schema only
+        @SerializedName("color_temp_value_template")
+        protected @Nullable String colorTempValueTemplate; // Default schema only
+        @SerializedName("color_temp_template")
+        protected @Nullable String colorTempTemplate; // Template schema only
+        @SerializedName("color_temp_command_topic")
+        protected @Nullable String colorTempCommandTopic; // Default schema only
+        @SerializedName("color_temp_command_template")
+        protected @Nullable String colorTempCommandTemplate; // Default schema only
+
+        /* Effect attributes */
+        @SerializedName("effect_list")
+        protected @Nullable List<String> effectList; // All schemas
+        @SerializedName("effect_state_topic")
+        protected @Nullable String effectStateTopic; // Default schema only
+        @SerializedName("effect_value_template")
+        protected @Nullable String effectValueTemplate; // Default schema only
+        @SerializedName("effect_template")
+        protected @Nullable String effectTemplate; // Template schema only
+        @SerializedName("effect_command_topic")
+        protected @Nullable String effectCommandTopic; // Default schema only
+        @SerializedName("effect_command_template")
+        protected @Nullable String effectCommandTemplate; // Default schema only
+
+        /* HS attributes */
+        @SerializedName("hs_state_topic")
+        protected @Nullable String hsStateTopic; // Default schema only
+        @SerializedName("hs_value_template")
+        protected @Nullable String hsValueTemplate; // Default schema only
+        @SerializedName("hs_command_topic")
+        protected @Nullable String hsCommandTopic; // Default schema only
+
+        /* RGB attributes */
+        @SerializedName("rgb_state_topic")
+        protected @Nullable String rgbStateTopic; // Default schema only
+        @SerializedName("rgb_value_template")
+        protected @Nullable String rgbValueTemplate; // Default schema only
+        @SerializedName("red_template")
+        protected @Nullable String redTemplate; // Template schema only
+        @SerializedName("green_template")
+        protected @Nullable String greenTemplate; // Template schema only
+        @SerializedName("blue_template")
+        protected @Nullable String blueTemplate; // Template schema only
+        @SerializedName("rgb_command_topic")
+        protected @Nullable String rgbCommandTopic; // Default schema only
+        @SerializedName("rgb_command_template")
+        protected @Nullable String rgbCommandTemplate; // Default schema only
+
+        /* RGBW attributes */
+        @SerializedName("rgbw_state_topic")
+        protected @Nullable String rgbwStateTopic; // Default schema only
+        @SerializedName("rgbw_value_template")
+        protected @Nullable String rgbwValueTemplate; // Default schema only
+        @SerializedName("rgbw_command_topic")
+        protected @Nullable String rgbwCommandTopic; // Default schema only
+        @SerializedName("rgbw_command_template")
+        protected @Nullable String rgbwCommandTemplate; // Default schema only
+
+        /* RGBWW attributes */
+        @SerializedName("rgbww_state_topic")
+        protected @Nullable String rgbwwStateTopic; // Default schema only
+        @SerializedName("rgbww_value_template")
+        protected @Nullable String rgbwwValueTemplate; // Default schema only
+        @SerializedName("rgbww_command_topic")
+        protected @Nullable String rgbwwCommandTopic; // Default schema only
+        @SerializedName("rgbww_command_template")
+        protected @Nullable String rgbwwCommandTemplate; // Default schema only
+
+        /* XY attributes */
+        @SerializedName("xy_command_topic")
+        protected @Nullable String xyCommandTopic; // Default schema only
+        @SerializedName("xy_state_topic")
+        protected @Nullable String xyStateTopic; // Default schema only
+        @SerializedName("xy_value_template")
+        protected @Nullable String xyValueTemplate; // Default schema only
     }
 
-    protected ComponentChannel colorChannel;
-    protected ComponentChannel switchChannel;
-    protected ComponentChannel brightnessChannel;
-    private final @Nullable ChannelStateUpdateListener channelStateUpdateListener;
+    protected final boolean optimistic;
+    protected boolean hasColorChannel = false;
 
-    public Light(ComponentFactory.ComponentConfiguration builder) {
+    protected @Nullable ComponentChannel onOffChannel;
+    protected @Nullable ComponentChannel brightnessChannel;
+
+    // State has to be stored here, in order to mux multiple
+    // MQTT sources into single OpenHAB channels
+    protected OnOffValue onOffValue;
+    protected PercentageValue brightnessValue;
+    protected final NumberValue colorTempValue;
+    protected final @Nullable TextValue effectValue;
+    protected final ColorValue colorValue = new ColorValue(ColorMode.HSB, null, null, 100);
+
+    protected final ChannelStateUpdateListener channelStateUpdateListener;
+
+    public static Light create(ComponentFactory.ComponentConfiguration builder) throws UnsupportedComponentException {
+        String schema = builder.getConfig(ChannelConfiguration.class).schema;
+        switch (schema) {
+            case DEFAULT_SCHEMA:
+                return new DefaultSchemaLight(builder);
+            case JSON_SCHEMA:
+                return new JSONSchemaLight(builder);
+            default:
+                throw new UnsupportedComponentException(
+                        "Component '" + builder.getHaID() + "' of schema '" + schema + "' is not supported!");
+        }
+    }
+
+    protected Light(ComponentFactory.ComponentConfiguration builder) {
         super(builder, ChannelConfiguration.class);
         this.channelStateUpdateListener = builder.getUpdateListener();
-        ColorValue value = new ColorValue(ColorMode.RGB, channelConfiguration.payload_on,
-                channelConfiguration.payload_off, 100);
 
-        // Create three MQTT subscriptions and use this class object as update listener
-        switchChannel = buildChannel(switchChannelID, value, channelConfiguration.getName(), this)
-                .stateTopic(channelConfiguration.state_topic, channelConfiguration.state_value_template,
-                        channelConfiguration.getValueTemplate())
-                .commandTopic(channelConfiguration.command_topic, channelConfiguration.isRetain(),
-                        channelConfiguration.getQos())
-                .build(false);
-
-        colorChannel = buildChannel(colorChannelID, value, channelConfiguration.getName(), this)
-                .stateTopic(channelConfiguration.rgb_state_topic, channelConfiguration.rgb_value_template)
-                .commandTopic(channelConfiguration.rgb_command_topic, channelConfiguration.isRetain(),
-                        channelConfiguration.getQos())
-                .build(false);
-
-        brightnessChannel = buildChannel(brightnessChannelID, value, channelConfiguration.getName(), this)
-                .stateTopic(channelConfiguration.brightness_state_topic, channelConfiguration.brightness_value_template)
-                .commandTopic(channelConfiguration.brightness_command_topic, channelConfiguration.isRetain(),
-                        channelConfiguration.getQos())
-                .build(false);
-
-        channels.put(colorChannelID, colorChannel);
-    }
-
-    @Override
-    public CompletableFuture<@Nullable Void> start(MqttBrokerConnection connection, ScheduledExecutorService scheduler,
-            int timeout) {
-        return Stream.of(switchChannel, brightnessChannel, colorChannel) //
-                .map(v -> v.start(connection, scheduler, timeout)) //
-                .reduce(CompletableFuture.completedFuture(null), (f, v) -> f.thenCompose(b -> v));
-    }
-
-    @Override
-    public CompletableFuture<@Nullable Void> stop() {
-        return Stream.of(switchChannel, brightnessChannel, colorChannel) //
-                .map(v -> v.stop()) //
-                .reduce(CompletableFuture.completedFuture(null), (f, v) -> f.thenCompose(b -> v));
-    }
-
-    /**
-     * Proxy method to condense all three MQTT subscriptions to one channel
-     */
-    @Override
-    public void updateChannelState(ChannelUID channelUID, State value) {
-        ChannelStateUpdateListener listener = channelStateUpdateListener;
-        if (listener != null) {
-            listener.updateChannelState(colorChannel.getChannelUID(), value);
+        @Nullable
+        Boolean optimistic = channelConfiguration.optimistic;
+        if (optimistic != null) {
+            this.optimistic = optimistic;
+        } else {
+            this.optimistic = (channelConfiguration.stateTopic == null);
         }
+
+        onOffValue = new OnOffValue(channelConfiguration.payloadOn, channelConfiguration.payloadOff);
+        brightnessValue = new PercentageValue(null, new BigDecimal(channelConfiguration.brightnessScale), null, null,
+                null);
+        @Nullable
+        List<String> effectList = channelConfiguration.effectList;
+        if (effectList != null) {
+            effectValue = new TextValue(effectList.toArray(new String[0]));
+        } else {
+            effectValue = null;
+        }
+        @Nullable
+        BigDecimal min = null, max = null;
+        if (channelConfiguration.minMireds != null) {
+            min = new BigDecimal(channelConfiguration.minMireds);
+        }
+        if (channelConfiguration.maxMireds != null) {
+            max = new BigDecimal(channelConfiguration.maxMireds);
+        }
+        colorTempValue = new NumberValue(min, max, BigDecimal.ONE, Units.MIRED);
+
+        buildChannels();
     }
 
-    /**
-     * Proxy method to condense all three MQTT subscriptions to one channel
-     */
+    protected abstract void buildChannels();
+
     @Override
     public void postChannelCommand(ChannelUID channelUID, Command value) {
-        ChannelStateUpdateListener listener = channelStateUpdateListener;
-        if (listener != null) {
-            listener.postChannelCommand(colorChannel.getChannelUID(), value);
-        }
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * Proxy method to condense all three MQTT subscriptions to one channel
-     */
     @Override
     public void triggerChannel(ChannelUID channelUID, String eventPayload) {
-        ChannelStateUpdateListener listener = channelStateUpdateListener;
-        if (listener != null) {
-            listener.triggerChannel(colorChannel.getChannelUID(), eventPayload);
-        }
+        throw new UnsupportedOperationException();
     }
 }

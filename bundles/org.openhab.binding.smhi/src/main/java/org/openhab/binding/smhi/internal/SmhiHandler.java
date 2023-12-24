@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -15,6 +15,7 @@ package org.openhab.binding.smhi.internal;
 import static org.openhab.binding.smhi.internal.SmhiBindingConstants.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -218,7 +219,7 @@ public class SmhiHandler extends BaseThingHandler {
                     newState = new QuantityType<>(value.get(), MetricPrefix.MILLI(SIUnits.METRE));
                     break;
                 default:
-                    newState = new DecimalType(value.get());
+                    newState = new DecimalType(value.get().setScale(0, RoundingMode.DOWN));
             }
         }
 
@@ -316,7 +317,7 @@ public class SmhiHandler extends BaseThingHandler {
                 return;
             } catch (PointOutOfBoundsException e) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Coordinates outside valid area");
+                        "@text/thing-status.invalidCoordinates");
                 cancelPolling();
                 return;
             }
@@ -424,9 +425,7 @@ public class SmhiHandler extends BaseThingHandler {
                 break;
 
         }
-        Channel channel = ChannelBuilder.create(channelUID, itemType)
-                .withType(new ChannelTypeUID(BINDING_ID, channelID)).build();
-        return channel;
+        return ChannelBuilder.create(channelUID, itemType).withType(new ChannelTypeUID(BINDING_ID, channelID)).build();
     }
 
     /**
