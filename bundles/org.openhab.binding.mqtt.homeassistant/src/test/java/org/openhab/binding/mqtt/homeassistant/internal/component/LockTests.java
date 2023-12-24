@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -17,9 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Set;
 
-import org.junit.Rule;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.openhab.binding.mqtt.generic.values.OnOffValue;
 import org.openhab.core.library.types.OnOffType;
 
@@ -28,92 +27,93 @@ import org.openhab.core.library.types.OnOffType;
  *
  * @author Anton Kharuzhy - Initial contribution
  */
-@SuppressWarnings("ALL")
+@NonNullByDefault
 public class LockTests extends AbstractComponentTests {
     public static final String CONFIG_TOPIC = "lock/0x0000000000000000_lock_zigbee2mqtt";
 
-    @Rule
-    public ExpectedException exceptionGrabber = ExpectedException.none();
-
+    @SuppressWarnings("null")
     @Test
     public void test() throws InterruptedException {
         // @formatter:off
         var component = discoverComponent(configTopicToMqtt(CONFIG_TOPIC),
-                "{ " +
-                        "  \"availability\": [ " +
-                        "    { " +
-                        "      \"topic\": \"zigbee2mqtt/bridge/state\" " +
-                        "    } " +
-                        "  ], " +
-                        "  \"device\": { " +
-                        "    \"identifiers\": [ " +
-                        "      \"zigbee2mqtt_0x0000000000000000\" " +
-                        "    ], " +
-                        "    \"manufacturer\": \"Locks inc\", " +
-                        "    \"model\": \"Lock\", " +
-                        "    \"name\": \"LockBlower\", " +
-                        "    \"sw_version\": \"Zigbee2MQTT 1.18.2\" " +
-                        "  }, " +
-                        "  \"name\": \"lock\", " +
-                        "  \"payload_unlock\": \"UNLOCK_\", " +
-                        "  \"payload_lock\": \"LOCK_\", " +
-                        "  \"state_topic\": \"zigbee2mqtt/lock/state\", " +
-                        "  \"command_topic\": \"zigbee2mqtt/lock/set/state\" " +
-                        "}");
+                """
+                { \
+                  "availability": [ \
+                    { \
+                      "topic": "zigbee2mqtt/bridge/state" \
+                    } \
+                  ], \
+                  "device": { \
+                    "identifiers": [ \
+                      "zigbee2mqtt_0x0000000000000000" \
+                    ], \
+                    "manufacturer": "Locks inc", \
+                    "model": "Lock", \
+                    "name": "LockBlower", \
+                    "sw_version": "Zigbee2MQTT 1.18.2" \
+                  }, \
+                  "name": "lock", \
+                  "payload_unlock": "UNLOCK_", \
+                  "payload_lock": "LOCK_", \
+                  "state_topic": "zigbee2mqtt/lock/state", \
+                  "command_topic": "zigbee2mqtt/lock/set/state" \
+                }\
+                """);
         // @formatter:on
 
         assertThat(component.channels.size(), is(1));
         assertThat(component.getName(), is("lock"));
 
-        assertChannel(component, Lock.switchChannelID, "zigbee2mqtt/lock/state", "zigbee2mqtt/lock/set/state", "lock",
+        assertChannel(component, Lock.SWITCH_CHANNEL_ID, "zigbee2mqtt/lock/state", "zigbee2mqtt/lock/set/state", "lock",
                 OnOffValue.class);
 
         publishMessage("zigbee2mqtt/lock/state", "LOCK_");
-        assertState(component, Lock.switchChannelID, OnOffType.ON);
+        assertState(component, Lock.SWITCH_CHANNEL_ID, OnOffType.ON);
         publishMessage("zigbee2mqtt/lock/state", "LOCK_");
-        assertState(component, Lock.switchChannelID, OnOffType.ON);
+        assertState(component, Lock.SWITCH_CHANNEL_ID, OnOffType.ON);
         publishMessage("zigbee2mqtt/lock/state", "UNLOCK_");
-        assertState(component, Lock.switchChannelID, OnOffType.OFF);
+        assertState(component, Lock.SWITCH_CHANNEL_ID, OnOffType.OFF);
         publishMessage("zigbee2mqtt/lock/state", "LOCK_");
-        assertState(component, Lock.switchChannelID, OnOffType.ON);
+        assertState(component, Lock.SWITCH_CHANNEL_ID, OnOffType.ON);
 
-        component.getChannel(Lock.switchChannelID).getState().publishValue(OnOffType.OFF);
+        component.getChannel(Lock.SWITCH_CHANNEL_ID).getState().publishValue(OnOffType.OFF);
         assertPublished("zigbee2mqtt/lock/set/state", "UNLOCK_");
-        component.getChannel(Lock.switchChannelID).getState().publishValue(OnOffType.ON);
+        component.getChannel(Lock.SWITCH_CHANNEL_ID).getState().publishValue(OnOffType.ON);
         assertPublished("zigbee2mqtt/lock/set/state", "LOCK_");
     }
 
     @Test
     public void forceOptimisticIsNotSupported() {
-        exceptionGrabber.expect(UnsupportedOperationException.class);
-
         // @formatter:off
         publishMessage(configTopicToMqtt(CONFIG_TOPIC),
-                "{ " +
-                        "  \"availability\": [ " +
-                        "    { " +
-                        "      \"topic\": \"zigbee2mqtt/bridge/state\" " +
-                        "    } " +
-                        "  ], " +
-                        "  \"device\": { " +
-                        "    \"identifiers\": [ " +
-                        "      \"zigbee2mqtt_0x0000000000000000\" " +
-                        "    ], " +
-                        "    \"manufacturer\": \"Locks inc\", " +
-                        "    \"model\": \"Lock\", " +
-                        "    \"name\": \"LockBlower\", " +
-                        "    \"sw_version\": \"Zigbee2MQTT 1.18.2\" " +
-                        "  }, " +
-                        "  \"name\": \"lock\", " +
-                        "  \"payload_unlock\": \"UNLOCK_\", " +
-                        "  \"payload_lock\": \"LOCK_\", " +
-                        "  \"optimistic\": \"true\", " +
-                        "  \"state_topic\": \"zigbee2mqtt/lock/state\", " +
-                        "  \"command_topic\": \"zigbee2mqtt/lock/set/state\" " +
-                        "}");
+                """
+                { \
+                  "availability": [ \
+                    { \
+                      "topic": "zigbee2mqtt/bridge/state" \
+                    } \
+                  ], \
+                  "device": { \
+                    "identifiers": [ \
+                      "zigbee2mqtt_0x0000000000000000" \
+                    ], \
+                    "manufacturer": "Locks inc", \
+                    "model": "Lock", \
+                    "name": "LockBlower", \
+                    "sw_version": "Zigbee2MQTT 1.18.2" \
+                  }, \
+                  "name": "lock", \
+                  "payload_unlock": "UNLOCK_", \
+                  "payload_lock": "LOCK_", \
+                  "optimistic": "true", \
+                  "state_topic": "zigbee2mqtt/lock/state", \
+                  "command_topic": "zigbee2mqtt/lock/set/state" \
+                }\
+                """);
         // @formatter:on
     }
 
+    @Override
     protected Set<String> getConfigTopics() {
         return Set.of(CONFIG_TOPIC);
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -14,11 +14,10 @@ package org.openhab.binding.mqtt.homeassistant.internal.config;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.gson.TypeAdapter;
@@ -33,6 +32,7 @@ import com.google.gson.stream.JsonWriter;
  *
  * @author Jochen Klein - Initial contribution
  */
+@NonNullByDefault
 public class ListOrStringDeserializer extends TypeAdapter<List<String>> {
 
     @Override
@@ -62,7 +62,7 @@ public class ListOrStringDeserializer extends TypeAdapter<List<String>> {
                 in.nextNull();
                 return null;
             case STRING:
-                return Collections.singletonList(in.nextString());
+                return List.of(in.nextString());
             case BEGIN_ARRAY:
                 return readList(in);
             default:
@@ -70,7 +70,7 @@ public class ListOrStringDeserializer extends TypeAdapter<List<String>> {
         }
     }
 
-    private @NonNull List<String> readList(@NonNull JsonReader in) throws IOException {
+    private List<String> readList(JsonReader in) throws IOException {
         in.beginArray();
 
         List<String> result = new ArrayList<>();

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -125,7 +125,7 @@ public class SamsungTvHandler extends BaseThingHandler implements RegistryListen
     public void channelLinked(ChannelUID channelUID) {
         logger.trace("channelLinked: {}", channelUID);
 
-        updateState(POWER, getPowerState() ? OnOffType.ON : OnOffType.OFF);
+        updateState(POWER, OnOffType.from(getPowerState()));
 
         for (SamsungTvService service : services) {
             service.clearCache();
@@ -242,12 +242,12 @@ public class SamsungTvHandler extends BaseThingHandler implements RegistryListen
         boolean isOnline = false;
 
         for (Device<?, ?, ?> device : upnpService.getRegistry().getDevices()) {
-            if (createService((RemoteDevice) device) == true) {
+            if (createService((RemoteDevice) device)) {
                 isOnline = true;
             }
         }
 
-        if (isOnline == true) {
+        if (isOnline) {
             logger.debug("Device was online");
             putOnline();
         } else {
@@ -375,6 +375,7 @@ public class SamsungTvHandler extends BaseThingHandler implements RegistryListen
             logger.debug("Device removed: udn={}", upnpUDN);
             shutdown();
             putOffline();
+            checkCreateManualConnection();
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2023 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -17,13 +17,13 @@ import static org.openhab.binding.danfossairunit.internal.Commands.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.DateTimeException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Frequency;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -43,28 +43,20 @@ import org.openhab.core.types.Command;
  * 
  * @author Ralf Duckstein - Initial contribution
  * @author Robert Bach - heavy refactorings
+ * @author Jacob Laursen - Refactoring, bugfixes and enhancements
  */
 
-@SuppressWarnings("SameParameterValue")
 @NonNullByDefault
 public class DanfossAirUnit {
 
-    private final DanfossAirUnitCommunicationController communicationController;
+    private final CommunicationController communicationController;
 
-    public DanfossAirUnit(InetAddress inetAddr, int port) {
-        this.communicationController = new DanfossAirUnitCommunicationController(inetAddr, port);
-    }
-
-    public void cleanUp() {
-        this.communicationController.disconnect();
+    public DanfossAirUnit(CommunicationController communicationController) {
+        this.communicationController = communicationController;
     }
 
     private boolean getBoolean(byte[] operation, byte[] register) throws IOException {
         return communicationController.sendRobustRequest(operation, register)[0] != 0;
-    }
-
-    private void setSetting(byte[] register, boolean value) throws IOException {
-        setSetting(register, value ? (byte) 1 : (byte) 0);
     }
 
     private short getWord(byte[] operation, byte[] register) throws IOException {
@@ -85,14 +77,6 @@ public class DanfossAirUnit {
     private void set(byte[] operation, byte[] register, byte value) throws IOException {
         byte[] valueArray = { value };
         communicationController.sendRobustRequest(operation, register, valueArray);
-    }
-
-    private void set(byte[] operation, byte[] register, short value) throws IOException {
-        communicationController.sendRobustRequest(operation, register, shortToBytes(value));
-    }
-
-    private byte[] shortToBytes(short s) {
-        return new byte[] { (byte) ((s & 0xFF00) >> 8), (byte) (s & 0x00FF) };
     }
 
     private short getShort(byte[] operation, byte[] register) throws IOException {
@@ -141,14 +125,6 @@ public class DanfossAirUnit {
         return f * 100 / 255;
     }
 
-    private void setSetting(byte[] register, short value) throws IOException {
-        byte[] valueArray = new byte[2];
-        valueArray[0] = (byte) (value >> 8);
-        valueArray[1] = (byte) value;
-
-        communicationController.sendRobustRequest(REGISTER_1_WRITE, register, valueArray);
-    }
-
     public String getUnitName() throws IOException {
         return getString(REGISTER_1_READ, UNIT_NAME);
     }
@@ -161,16 +137,20 @@ public class DanfossAirUnit {
         return new StringType(Mode.values()[getByte(REGISTER_1_READ, MODE)].name());
     }
 
-    public PercentType getManualFanStep() throws IOException {
-        return new PercentType(BigDecimal.valueOf(getByte(REGISTER_1_READ, MANUAL_FAN_SPEED_STEP) * 10));
+    public PercentType getManualFanStep() throws IOException, UnexpectedResponseValueException {
+        byte value = getByte(REGISTER_1_READ, MANUAL_FAN_SPEED_STEP);
+        if (value < 0 || value > 10) {
+            throw new UnexpectedResponseValueException(String.format("Invalid fan step: %d", value));
+        }
+        return new PercentType(BigDecimal.valueOf(value * 10));
     }
 
-    public DecimalType getSupplyFanSpeed() throws IOException {
-        return new DecimalType(BigDecimal.valueOf(getWord(REGISTER_4_READ, SUPPLY_FAN_SPEED)));
+    public QuantityType<Frequency> getSupplyFanSpeed() throws IOException {
+        return new QuantityType<>(BigDecimal.valueOf(getWord(REGISTER_4_READ, SUPPLY_FAN_SPEED)), Units.RPM);
     }
 
-    public DecimalType getExtractFanSpeed() throws IOException {
-        return new DecimalType(BigDecimal.valueOf(getWord(REGISTER_4_READ, EXTRACT_FAN_SPEED)));
+    public QuantityType<Frequency> getExtractFanSpeed() throws IOException {
+        return new QuantityType<>(BigDecimal.valueOf(getWord(REGISTER_4_READ, EXTRACT_FAN_SPEED)), Units.RPM);
     }
 
     public PercentType getSupplyFanStep() throws IOException {
@@ -182,15 +162,15 @@ public class DanfossAirUnit {
     }
 
     public OnOffType getBoost() throws IOException {
-        return getBoolean(REGISTER_1_READ, BOOST) ? OnOffType.ON : OnOffType.OFF;
+        return OnOffType.from(getBoolean(REGISTER_1_READ, BOOST));
     }
 
     public OnOffType getNightCooling() throws IOException {
-        return getBoolean(REGISTER_1_READ, NIGHT_COOLING) ? OnOffType.ON : OnOffType.OFF;
+        return OnOffType.from(getBoolean(REGISTER_1_READ, NIGHT_COOLING));
     }
 
     public OnOffType getBypass() throws IOException {
-        return getBoolean(REGISTER_1_READ, BYPASS) ? OnOffType.ON : OnOffType.OFF;
+        return OnOffType.from(getBoolean(REGISTER_1_READ, BYPASS));
     }
 
     public QuantityType<Dimensionless> getHumidity() throws IOException {
@@ -234,7 +214,16 @@ public class DanfossAirUnit {
     }
 
     public DecimalType getFilterLife() throws IOException {
-        return new DecimalType(BigDecimal.valueOf(asPercentByte(getByte(REGISTER_1_READ, FILTER_LIFE))));
+        BigDecimal value = BigDecimal.valueOf(asPercentByte(getByte(REGISTER_1_READ, FILTER_LIFE)));
+        return new DecimalType(value.setScale(1, RoundingMode.HALF_UP));
+    }
+
+    public DecimalType getFilterPeriod() throws IOException {
+        return new DecimalType(BigDecimal.valueOf(getByte(REGISTER_1_READ, FILTER_PERIOD)));
+    }
+
+    public DecimalType setFilterPeriod(Command cmd) throws IOException {
+        return setNumberTypeRegister(cmd, FILTER_PERIOD);
     }
 
     public DateTimeType getCurrentTime() throws IOException, UnexpectedResponseValueException {
@@ -246,9 +235,17 @@ public class DanfossAirUnit {
         return setPercentTypeRegister(cmd, MANUAL_FAN_SPEED_STEP);
     }
 
+    private DecimalType setNumberTypeRegister(Command cmd, byte[] register) throws IOException {
+        if (cmd instanceof DecimalType decimalCommand) {
+            byte value = (byte) decimalCommand.intValue();
+            set(REGISTER_1_WRITE, register, value);
+        }
+        return new DecimalType(BigDecimal.valueOf(getByte(REGISTER_1_READ, register)));
+    }
+
     private PercentType setPercentTypeRegister(Command cmd, byte[] register) throws IOException {
-        if (cmd instanceof PercentType) {
-            byte value = (byte) ((((PercentType) cmd).intValue() + 5) / 10);
+        if (cmd instanceof PercentType percentCommand) {
+            byte value = (byte) ((percentCommand.intValue() + 5) / 10);
             set(REGISTER_1_WRITE, register, value);
         }
         return new PercentType(BigDecimal.valueOf(getByte(REGISTER_1_READ, register) * 10));
@@ -258,7 +255,7 @@ public class DanfossAirUnit {
         if (cmd instanceof OnOffType) {
             set(REGISTER_1_WRITE, register, OnOffType.ON.equals(cmd) ? (byte) 1 : (byte) 0);
         }
-        return getBoolean(REGISTER_1_READ, register) ? OnOffType.ON : OnOffType.OFF;
+        return OnOffType.from(getBoolean(REGISTER_1_READ, register));
     }
 
     private StringType setStringTypeRegister(Command cmd, byte[] register) throws IOException {
