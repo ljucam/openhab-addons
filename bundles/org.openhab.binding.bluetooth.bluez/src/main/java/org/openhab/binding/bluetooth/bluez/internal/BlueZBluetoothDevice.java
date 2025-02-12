@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.freedesktop.dbus.errors.NoReply;
+import org.freedesktop.dbus.errors.UnknownObject;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.exceptions.DBusExecutionException;
 import org.freedesktop.dbus.types.UInt16;
@@ -195,7 +196,12 @@ public class BlueZBluetoothDevice extends BaseBluetoothDevice implements BlueZEv
         BluetoothDevice dev = device;
         if (dev != null) {
             logger.debug("Disconnecting '{}'", address);
-            return dev.disconnect();
+            try {
+                return dev.disconnect();
+            } catch (UnknownObject exception) {
+                logger.debug("Failed to disconnect the device, UnknownObject", exception);
+                return false;
+            }
         }
         return false;
     }
@@ -213,9 +219,9 @@ public class BlueZBluetoothDevice extends BaseBluetoothDevice implements BlueZEv
             return null;
         }
         for (BluetoothGattService service : dev.getGattServices()) {
-            for (BluetoothGattCharacteristic c : service.getGattCharacteristics()) {
-                if (c.getUuid().equalsIgnoreCase(uuid)) {
-                    return c;
+            for (BluetoothGattCharacteristic characteristic : service.getGattCharacteristics()) {
+                if (characteristic != null && uuid.equalsIgnoreCase(characteristic.getUuid())) {
+                    return characteristic;
                 }
             }
         }
@@ -230,7 +236,7 @@ public class BlueZBluetoothDevice extends BaseBluetoothDevice implements BlueZEv
         for (BluetoothGattService service : dev.getGattServices()) {
             if (dBusPath.startsWith(service.getDbusPath())) {
                 for (BluetoothGattCharacteristic characteristic : service.getGattCharacteristics()) {
-                    if (dBusPath.startsWith(characteristic.getDbusPath())) {
+                    if (characteristic != null && dBusPath.startsWith(characteristic.getDbusPath())) {
                         return characteristic;
                     }
                 }

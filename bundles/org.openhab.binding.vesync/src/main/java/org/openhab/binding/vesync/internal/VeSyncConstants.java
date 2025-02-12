@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -30,7 +30,7 @@ public class VeSyncConstants {
 
     public static final Gson GSON = new GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting()
-            .disableHtmlEscaping().serializeNulls().create();
+            .disableHtmlEscaping().create();
 
     private static final String BINDING_ID = "vesync";
 
@@ -65,6 +65,8 @@ public class VeSyncConstants {
     public static final String DEVICE_CHANNEL_AF_CONFIG_AUTO_ROOM_SIZE = "configAutoRoomSize";
     public static final String DEVICE_CHANNEL_AF_SCHEDULES_COUNT = "schedulesCount";
     public static final String DEVICE_CHANNEL_AF_NIGHT_LIGHT = "nightLightMode";
+    public static final String DEVICE_CHANNEL_AF_LIGHT_DETECTION = "lightDetection";
+    public static final String DEVICE_CHANNEL_AF_LIGHT_DETECTED = "lightDetected";
 
     // Humidity related channels
     public static final String DEVICE_CHANNEL_WATER_LACKS = "waterLacking";

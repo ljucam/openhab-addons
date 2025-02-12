@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -13,13 +13,12 @@
 package org.openhab.binding.myuplink.internal.command;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Response.CompleteListener;
 import org.eclipse.jetty.client.api.Response.ContentListener;
 import org.eclipse.jetty.client.api.Response.FailureListener;
 import org.eclipse.jetty.client.api.Response.SuccessListener;
-import org.openhab.binding.myuplink.internal.connector.StatusUpdateListener;
+import org.openhab.binding.myuplink.internal.model.ValidationException;
 
 /**
  * public interface for all commands
@@ -29,27 +28,13 @@ import org.openhab.binding.myuplink.internal.connector.StatusUpdateListener;
 @NonNullByDefault
 public interface MyUplinkCommand extends SuccessListener, FailureListener, ContentListener, CompleteListener {
 
-    public static int MAX_RETRIES = 5;
+    static final int MAX_RETRIES = 5;
 
     /**
      * this method is to be called by the UplinkWebinterface class
      *
-     * @param asyncclient client which will handle the command
+     * @param asyncclient
+     * @throws ValidationException
      */
-    void performAction(HttpClient asyncclient);
-
-    /**
-     * get the current listener
-     *
-     * @return instance of the listener, might be null.
-     */
-    @Nullable
-    StatusUpdateListener getListener();
-
-    /**
-     * register a listener
-     *
-     * @param listener the listener to be registered.
-     */
-    void setListener(StatusUpdateListener listener);
+    void performAction(HttpClient asyncclient, String token) throws ValidationException;
 }

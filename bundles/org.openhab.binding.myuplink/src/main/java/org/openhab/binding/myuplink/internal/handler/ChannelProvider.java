@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,20 +12,27 @@
  */
 package org.openhab.binding.myuplink.internal.handler;
 
-import java.util.Set;
-
-import org.openhab.binding.myuplink.internal.model.Channel;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.core.thing.Channel;
 
 /**
  * this interface provides all methods which deal with channels
  *
  * @author Alexander Friese - initial contribution
  */
+@NonNullByDefault
 public interface ChannelProvider {
 
-    Set<Channel> getChannels();
-
-    Set<Channel> getDeadChannels();
-
-    Channel getSpecificChannel(String channelCode);
+    /**
+     * returns the channel with given channelId and groupId. If no channel matches, null is returned.
+     *
+     * @param groupId
+     *            group ID of the channel
+     * @param channelId
+     *            channel ID of the channel
+     * @return
+     */
+    @Nullable
+    Channel getChannel(String groupId, String channelId);
 }

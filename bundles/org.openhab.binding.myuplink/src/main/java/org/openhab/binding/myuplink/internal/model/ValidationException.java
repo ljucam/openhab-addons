@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2021 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,13 +12,16 @@
  */
 package org.openhab.binding.myuplink.internal.model;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * exception whichs is used to state a validation error
  *
  * @author Alexander Friese - initial contribution
  */
-public class ValidationException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
+@NonNullByDefault
+public class ValidationException extends Exception {
+    private static final long serialVersionUID = -6479556472780307224L;
 
     public ValidationException() {
         super();

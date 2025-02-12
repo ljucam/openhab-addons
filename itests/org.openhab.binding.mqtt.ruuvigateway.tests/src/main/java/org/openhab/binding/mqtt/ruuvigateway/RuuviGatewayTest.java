@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -192,6 +192,13 @@ public class RuuviGatewayTest extends MqttOSGiTest {
         CHANNEL_TO_ITEM_TYPE.forEach((channelId, _itemType) -> {
             thingBuilder.withChannel(ChannelBuilder.create(new ChannelUID(thingUID, channelId)).build());
         });
+
+        /*
+         * Since we now have an 'upgrade/instructions.xml' file the {@link ManagedThingProvider} is now obliged to apply
+         * those instructions to this test thing. And if the test thing is undergoing such an upgrade, the tests beyond
+         * this line will fail. So we add a 'thingTypeVersion' property to prevent such update process.
+         */
+        thingBuilder.withProperty("thingTypeVersion", "1");
 
         Thing thing = thingBuilder.build();
         thingProvider.add(thing);
