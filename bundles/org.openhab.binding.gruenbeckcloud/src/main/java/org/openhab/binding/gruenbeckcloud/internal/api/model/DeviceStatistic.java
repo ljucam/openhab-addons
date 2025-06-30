@@ -311,6 +311,8 @@ public class DeviceStatistic {
         private String message;
         private String type;
 
+        private String description;
+
         private String errorCode;
 
         public Error() {
@@ -355,6 +357,18 @@ public class DeviceStatistic {
 
         public void setErrorCode(String errorCode) {
             this.errorCode = errorCode;
+        }
+
+        public Boolean getResolved() {
+            return resolved;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
     }
 }
