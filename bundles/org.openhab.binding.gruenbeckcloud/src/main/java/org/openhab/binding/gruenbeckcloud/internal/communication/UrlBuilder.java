@@ -208,7 +208,7 @@ public class UrlBuilder {
         request.header("Accept-Language", "de-de");
         request.header("Authorization", "Bearer " + websocketToken.getAccessToken());
         request.header("X-Requested-With", "XMLHttpRequest");
-        request.header("Upgrade", "websocket");
+        // request.header("Upgrade", "websocket");
         request.header("Host", "prod-eu-gruenbeck-signalr.service.signalr.net");
     }
 
